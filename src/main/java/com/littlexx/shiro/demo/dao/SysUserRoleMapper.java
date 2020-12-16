@@ -2,6 +2,7 @@ package com.littlexx.shiro.demo.dao;
 
 import com.littlexx.shiro.demo.model.SysUserRole;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.springframework.stereotype.Repository;
 
 /**
  * <p>
@@ -11,6 +12,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author littlexx
  * @since 2020-11-28
  */
+@Repository
 public interface SysUserRoleMapper extends BaseMapper<SysUserRole> {
 
 }

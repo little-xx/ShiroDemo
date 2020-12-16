@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
 @SpringBootApplication
-@MapperScan("com.**.dao")
+@MapperScan(basePackages = {"com.littlexx.shiro.demo.dao"})
 public class ShiroDemoApplication {
 
     public static void main(String[] args) {

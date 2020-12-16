@@ -1,5 +1,8 @@
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.littlexx.shiro.demo.ShiroDemoApplication;
 import com.littlexx.shiro.demo.dao.SysRoleMapper;
+import com.littlexx.shiro.demo.dao.SysUserMapper;
+import com.littlexx.shiro.demo.model.SysUser;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.mgt.DefaultSecurityManager;
@@ -42,11 +45,17 @@ public class AuthenticationTest {
     }
 
     @Autowired
-    private SysRoleMapper mapper;
+    private SysUserMapper userMapper;
 
     @Test
     public void insertSomething() {
-        mapper.insert("")
+        SysUser user = new SysUser();
+        user.setUsername("admin");
+        user.setPassword("111111");
+        user.setStatus(1);
+
+        userMapper.insert(user);
+
     }
 
 

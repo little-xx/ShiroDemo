@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
  * @author littlexx
  * @since 2020-11-28
  */
+@Repository
 public interface SysRoleMapper extends BaseMapper<SysRole> {
 
 }

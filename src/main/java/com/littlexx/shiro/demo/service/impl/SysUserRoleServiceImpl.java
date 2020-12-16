@@ -1,9 +1,13 @@
 package com.littlexx.shiro.demo.service.impl;
 
+import com.littlexx.shiro.demo.dao.SysRoleMapper;
+import com.littlexx.shiro.demo.dao.SysUserMapper;
+import com.littlexx.shiro.demo.model.SysRole;
 import com.littlexx.shiro.demo.model.SysUserRole;
 import com.littlexx.shiro.demo.dao.SysUserRoleMapper;
 import com.littlexx.shiro.demo.service.ISysUserRoleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,5 +20,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class SysUserRoleServiceImpl extends ServiceImpl<SysUserRoleMapper, SysUserRole> implements ISysUserRoleService {
+
+    @Autowired
+    private SysUserMapper userMapper;
 
 }
