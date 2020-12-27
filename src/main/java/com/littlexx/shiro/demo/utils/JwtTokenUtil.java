@@ -69,13 +69,13 @@ public class JwtTokenUtil implements Serializable {
         return header;
     }
 
-    public String generateToken(String username, String secret, Integer userId) {
+    public String generateToken(String username, String secret, String userId) {
         return JWT.create()
                 .withHeader(generateHeader())
                 .withClaim("username", username)
                 .withExpiresAt(generateExpirationDate())
                 .withIssuedAt(new Date())
-                .withSubject(String.valueOf(userId))
+                .withSubject(userId)
                 .sign(Algorithm.HMAC256(secret));
     }
 

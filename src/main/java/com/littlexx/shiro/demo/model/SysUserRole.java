@@ -26,7 +26,6 @@ public class SysUserRole implements Serializable {
 
     /**
      * id
-
      */
     private String id;
 

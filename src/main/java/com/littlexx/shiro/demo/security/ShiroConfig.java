@@ -2,7 +2,10 @@ package com.littlexx.shiro.demo.security;
 
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.shiro.mgt.DefaultSecurityManager;
+import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
+import org.apache.shiro.mgt.DefaultSubjectDAO;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,6 +15,8 @@ import java.util.Map;
 @Configuration
 public class ShiroConfig {
 
+
+
     // 创建Realm对象，需要自定义类
     @Bean
     public MyRealm myRealm() {
@@ -19,10 +24,21 @@ public class ShiroConfig {
     }
 
     // DefaultWebSecurityManager
+
     @Bean
-    public DefaultSecurityManager getDefaultSecurityManager(MyRealm myRealm) {
-        DefaultSecurityManager manager = new DefaultSecurityManager();
+    public DefaultWebSecurityManager getDefaultWebSecurityManager(MyRealm myRealm) {
+        DefaultWebSecurityManager manager = new DefaultWebSecurityManager();
         manager.setRealm(myRealm);
+
+        /*
+         * 关闭shiro自带的session，详情见文档
+         */
+        DefaultSubjectDAO subjectDAO = new DefaultSubjectDAO();
+        DefaultSessionStorageEvaluator defaultSessionStorageEvaluator = new DefaultSessionStorageEvaluator();
+        defaultSessionStorageEvaluator.setSessionStorageEnabled(false);
+        subjectDAO.setSessionStorageEvaluator(defaultSessionStorageEvaluator);
+        manager.setSubjectDAO(subjectDAO);
+
         return manager;
     }
 
@@ -42,6 +58,7 @@ public class ShiroConfig {
         factoryBean.setFilterChainDefinitionMap(filterRuleMap);
 
         factoryBean.setSecurityManager(manager);
+
         return factoryBean;
     }
 }
