@@ -31,7 +31,7 @@ public class ShiroConfig {
         manager.setRealm(myRealm);
 
         /*
-         * 关闭shiro自带的session，详情见文档
+         * 关闭session
          */
         DefaultSubjectDAO subjectDAO = new DefaultSubjectDAO();
         DefaultSessionStorageEvaluator defaultSessionStorageEvaluator = new DefaultSessionStorageEvaluator();

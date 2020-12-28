@@ -44,11 +44,12 @@ public class JwtTokenFilter extends BasicHttpAuthenticationFilter {
         try {
             executeLogin(request, response);
         } catch (Exception e) {
-            loginFailure(request, response);
+            loginFailure(request, response, e);
             return false;
         }
         return true;
     }
+
 
     @Override
     protected boolean executeLogin(ServletRequest request, ServletResponse response) throws AuthenticationException {
@@ -61,10 +62,10 @@ public class JwtTokenFilter extends BasicHttpAuthenticationFilter {
     }
 
 
-    private void loginFailure(ServletRequest req, ServletResponse resp) {
+    private void loginFailure(ServletRequest req, ServletResponse resp, Exception exception) {
         try {
             HttpServletResponse httpServletResponse = (HttpServletResponse) resp;
-            String json = JSON.toJSONString(new ErrorTip("Permission denied"));
+            String json = JSON.toJSONString(new ErrorTip(exception.getMessage()));
             httpServletResponse.getWriter().print(json);
         } catch (IOException e) {
             e.printStackTrace();
