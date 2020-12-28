@@ -56,6 +56,11 @@ public class SysRole implements Serializable {
     private Integer isAdmin;
 
     /**
+     * 权限编码
+     */
+    private String permissionCode;
+
+    /**
      * 创建时间
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

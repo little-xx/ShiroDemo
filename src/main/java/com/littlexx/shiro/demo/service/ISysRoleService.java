@@ -5,6 +5,9 @@ import com.littlexx.shiro.demo.model.SysRole;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+import java.util.Set;
+
 /**
  * <p>
  * 角色表 服务类
@@ -15,4 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public interface ISysRoleService extends IService<SysRole> {
 
+    Set<SysRole> getSysRolesByUsername(String username);
 }
+

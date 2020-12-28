@@ -2,7 +2,9 @@ package com.littlexx.shiro.demo.security;
 
 import com.alibaba.fastjson.JSON;
 import com.littlexx.shiro.demo.tips.ErrorTip;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -61,11 +63,17 @@ public class JwtTokenFilter extends BasicHttpAuthenticationFilter {
         return true;
     }
 
+    @Override
+    protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
+        System.out.println("on access denied");
+        return super.onAccessDenied(request, response);
+    }
 
     private void loginFailure(ServletRequest req, ServletResponse resp, Exception exception) {
         try {
+            System.out.println("loginFailure");
             HttpServletResponse httpServletResponse = (HttpServletResponse) resp;
-            String json = JSON.toJSONString(new ErrorTip(exception.getMessage()));
+            String json = JSON.toJSONString(new ErrorTip(401, exception.getMessage()));
             httpServletResponse.getWriter().print(json);
         } catch (IOException e) {
             e.printStackTrace();

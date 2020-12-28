@@ -12,6 +12,7 @@ import com.littlexx.shiro.demo.tips.Tip;
 import com.littlexx.shiro.demo.utils.JwtTokenUtil;
 import com.littlexx.shiro.demo.utils.MD5Util;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,6 +51,7 @@ public class LoginController {
         }
     }
 
+    @RequiresPermissions("sys:manager")
     @GetMapping("/getMessage")
     public Tip test(){
         try {

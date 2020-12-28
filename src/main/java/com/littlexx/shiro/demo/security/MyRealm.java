@@ -1,20 +1,34 @@
 package com.littlexx.shiro.demo.security;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.littlexx.shiro.demo.model.SysRole;
 import com.littlexx.shiro.demo.model.SysUser;
+import com.littlexx.shiro.demo.model.SysUserRole;
+import com.littlexx.shiro.demo.service.ISysRoleService;
+import com.littlexx.shiro.demo.service.ISysUserRoleService;
 import com.littlexx.shiro.demo.service.ISysUserService;
 import com.littlexx.shiro.demo.utils.JwtTokenUtil;
+import org.apache.commons.collections.SetUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
-import org.apache.shiro.realm.AuthenticatingRealm;
+import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class MyRealm extends AuthenticatingRealm {
+import java.util.HashSet;
+import java.util.Set;
+
+public class MyRealm extends AuthorizingRealm {
 
     @Autowired
     private ISysUserService userService;
+
+    @Autowired
+    private ISysRoleService roleService;
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -25,12 +39,38 @@ public class MyRealm extends AuthenticatingRealm {
     }
 
     @Override
+    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
+        String jwtToken = (String) principalCollection.getPrimaryPrincipal();
+        String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
+        SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
+        Set<SysRole> sysRoles = roleService.getSysRolesByUsername(username);
+        if (!sysRoles.isEmpty()) {
+            Set<String> sysRoleNames = new HashSet<>();
+            Set<String> sysRolePermissions = new HashSet<>();
+            for (SysRole sysRole : sysRoles) {
+                sysRoleNames.add(sysRole.getName());
+                sysRolePermissions.add(sysRole.getPermissionCode());
+            }
+            // 设置角色
+            authorizationInfo.setRoles(sysRoleNames);
+            // 设置权限
+            authorizationInfo.setStringPermissions(sysRolePermissions);
+        }
+        return authorizationInfo;
+    }
+
+    @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
         String token = (String) authenticationToken.getCredentials();
         String username = jwtTokenUtil.getUsernameFromToken(token);
         if (username == null) {
             throw new AuthenticationException("token invalid");
         }
+
+        if (jwtTokenUtil.isTokenExpired(token)) {
+            throw new AuthenticationException("token expired");
+        }
+
         QueryWrapper<SysUser> wrapper = new QueryWrapper<>();
         wrapper.eq("username", username);
         SysUser sysUser = userService.getOne(wrapper);
