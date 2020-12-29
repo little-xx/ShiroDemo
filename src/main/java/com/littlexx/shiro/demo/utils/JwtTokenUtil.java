@@ -20,6 +20,10 @@ public class JwtTokenUtil implements Serializable {
     // 设置过期时间为30分钟
     private static final long EXPIRE_TIME  = 30*60*1000;
 
+    public long getExpireTime() {
+        return EXPIRE_TIME;
+    }
+
     private DecodedJWT decodedJWT(String token) {
         DecodedJWT jwt;
         try {

@@ -1,5 +1,6 @@
 package com.littlexx.shiro.demo.security;
 
+import com.littlexx.shiro.demo.security.cache.IRedisTokenCacheService;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
@@ -16,8 +17,6 @@ import java.util.Map;
 
 @Configuration
 public class ShiroConfig {
-
-
 
     // 创建Realm对象，需要自定义类
     @Bean
@@ -46,12 +45,12 @@ public class ShiroConfig {
 
     // ShiroFilterFactoryBean
     @Bean
-    public ShiroFilterFactoryBean getShiroFilterFactoryBean(DefaultSecurityManager manager) {
+    public ShiroFilterFactoryBean getShiroFilterFactoryBean(IRedisTokenCacheService redisTokenCacheService, DefaultSecurityManager manager) {
         ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean();
 
         // 添加jwt过滤器
         Map<String, Filter> filterMap = new HashedMap();
-        filterMap.put("jwt", new JwtTokenFilter());
+        filterMap.put("jwt", new JwtTokenFilter(redisTokenCacheService));
         factoryBean.setFilters(filterMap);
 
         Map<String, String> filterRuleMap = new HashedMap();

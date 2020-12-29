@@ -3,12 +3,10 @@ package com.littlexx.shiro.demo.security;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.littlexx.shiro.demo.model.SysRole;
 import com.littlexx.shiro.demo.model.SysUser;
-import com.littlexx.shiro.demo.model.SysUserRole;
+import com.littlexx.shiro.demo.security.cache.IRedisTokenCacheService;
 import com.littlexx.shiro.demo.service.ISysRoleService;
-import com.littlexx.shiro.demo.service.ISysUserRoleService;
 import com.littlexx.shiro.demo.service.ISysUserService;
 import com.littlexx.shiro.demo.utils.JwtTokenUtil;
-import org.apache.commons.collections.SetUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -32,6 +30,9 @@ public class MyRealm extends AuthorizingRealm {
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private IRedisTokenCacheService redisTokenCacheService;
 
     @Override
     public boolean supports(AuthenticationToken token) {
@@ -69,6 +70,11 @@ public class MyRealm extends AuthorizingRealm {
 
         if (jwtTokenUtil.isTokenExpired(token)) {
             throw new AuthenticationException("token expired");
+        }
+
+        // 判断redis中是否有该token
+        if (redisTokenCacheService.tokenCached(username, token)) {
+            return new SimpleAuthenticationInfo(token, token, "my_realm");
         }
 
         QueryWrapper<SysUser> wrapper = new QueryWrapper<>();

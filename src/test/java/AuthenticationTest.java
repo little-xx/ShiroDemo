@@ -1,20 +1,16 @@
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.littlexx.shiro.demo.ShiroDemoApplication;
 import com.littlexx.shiro.demo.dao.SysRoleMapper;
 import com.littlexx.shiro.demo.dao.SysUserMapper;
 import com.littlexx.shiro.demo.dao.SysUserRoleMapper;
-import com.littlexx.shiro.demo.model.SysRole;
 import com.littlexx.shiro.demo.model.SysUser;
-import com.littlexx.shiro.demo.model.SysUserRole;
 import com.littlexx.shiro.demo.utils.MD5Util;
+import com.littlexx.shiro.demo.utils.RedisUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ShiroDemoApplication.class)
@@ -30,7 +26,7 @@ public class AuthenticationTest {
     private SysUserRoleMapper sysUserRoleMapper;
 
     @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisUtil redisUtil;
 
     @Test
     public void insertSomething() {
@@ -48,12 +44,8 @@ public class AuthenticationTest {
 
     @Test
     public void testRedis() {
-        QueryWrapper<SysUserRole> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_id", "1343565253299986434");
-        List<SysUserRole> sysUserRoles = sysUserRoleMapper.selectList(queryWrapper);
-        for (SysUserRole sysUserRole : sysUserRoles) {
-            System.out.println(sysUserRole);
-        }
+        String token = redisUtil.getCacheObject("xiaotang");
+        System.out.println(token);
     }
 
 }

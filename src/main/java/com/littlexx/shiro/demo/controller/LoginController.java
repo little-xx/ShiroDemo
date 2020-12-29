@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.littlexx.shiro.demo.dao.SysUserMapper;
 import com.littlexx.shiro.demo.model.SysUser;
 import com.littlexx.shiro.demo.model.dto.LoginBodyDto;
+import com.littlexx.shiro.demo.security.cache.IRedisTokenCacheService;
 import com.littlexx.shiro.demo.service.ISysUserService;
 import com.littlexx.shiro.demo.tips.ErrorTip;
 import com.littlexx.shiro.demo.tips.SuccessTip;
@@ -18,14 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
 
-/**
- * <p>
- * 登录 前端控制器
- * </p>
- *
- * @author littlexx
- * @since 2020-11-28
- */
 @RestController
 public class LoginController {
 
@@ -34,6 +27,9 @@ public class LoginController {
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private IRedisTokenCacheService redisTokenCacheService;
 
     @PostMapping("/login")
     public Tip login(@RequestBody LoginBodyDto loginBodyDto) {
@@ -45,8 +41,9 @@ public class LoginController {
             String md5 = MD5Util.getMd5(loginBodyDto.getPassword(), sysUser.getSalt());
             if (!StringUtils.equals(sysUser.getPassword(), md5)) return new ErrorTip("密码错误");
             String token = jwtTokenUtil.generateToken(sysUser.getUsername(), sysUser.getPassword(), sysUser.getId());
+            redisTokenCacheService.cacheLoginInfo(token,sysUser);
             return new SuccessTip("登录成功", token);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             return new ErrorTip(e.getMessage());
         }
     }

@@ -1,18 +1,22 @@
 package com.littlexx.shiro.demo.security;
 
 import com.alibaba.fastjson.JSON;
+import com.littlexx.shiro.demo.security.cache.IRedisTokenCacheService;
 import com.littlexx.shiro.demo.tips.ErrorTip;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.ws.Action;
 import java.io.IOException;
 
 /**
@@ -20,6 +24,11 @@ import java.io.IOException;
  */
 public class JwtTokenFilter extends BasicHttpAuthenticationFilter {
 
+    private IRedisTokenCacheService redisTokenCacheService;
+
+    public JwtTokenFilter(IRedisTokenCacheService redisTokenCacheService) {
+        this.redisTokenCacheService = redisTokenCacheService;
+    }
 
     /**
      * 对跨域提供支持
@@ -32,7 +41,6 @@ public class JwtTokenFilter extends BasicHttpAuthenticationFilter {
         httpServletResponse.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,DELETE");
         httpServletResponse.setHeader("Access-Control-Allow-Headers", httpServletRequest.getHeader("Access-Control-Request-Headers"));
         // 跨域时会首先发送一个option请求，这里我们给option请求直接返回正常状态
-        System.out.println(httpServletRequest.getMethod());
         if (httpServletRequest.getMethod().equals(RequestMethod.OPTIONS.name())) {
             httpServletResponse.setStatus(HttpStatus.OK.value());
             return false;
@@ -42,20 +50,19 @@ public class JwtTokenFilter extends BasicHttpAuthenticationFilter {
 
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
-        System.out.println("isAccessAllowed");
         try {
             executeLogin(request, response);
         } catch (Exception e) {
             loginFailure(request, response, e);
             return false;
         }
+        loginSuccess(request, response);
         return true;
     }
 
 
     @Override
     protected boolean executeLogin(ServletRequest request, ServletResponse response) throws AuthenticationException {
-        System.out.println("executeLogin");
         HttpServletRequest req = (HttpServletRequest) request;
         String authorization = req.getHeader("Authorization");
         JwtToken jwt = new JwtToken(authorization);
@@ -63,15 +70,15 @@ public class JwtTokenFilter extends BasicHttpAuthenticationFilter {
         return true;
     }
 
-    @Override
-    protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
-        System.out.println("on access denied");
-        return super.onAccessDenied(request, response);
+    private void loginSuccess(ServletRequest request, ServletResponse response) {
+        HttpServletRequest req = (HttpServletRequest) request;
+        String token = req.getHeader("Authorization");
+        redisTokenCacheService.refreshTokenCache(token);
     }
+
 
     private void loginFailure(ServletRequest req, ServletResponse resp, Exception exception) {
         try {
-            System.out.println("loginFailure");
             HttpServletResponse httpServletResponse = (HttpServletResponse) resp;
             String json = JSON.toJSONString(new ErrorTip(401, exception.getMessage()));
             httpServletResponse.getWriter().print(json);
